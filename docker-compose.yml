@@ -5,7 +5,7 @@ services:
     image: mysql:5.7
     container_name: db
     build:
-      context: ./db
+      context: ./scripts
     volumes:
       - "./scripts/db.sql:/docker-entrypoint-initdb.d/db.sql"
     environment:
@@ -24,11 +24,11 @@ services:
     tty: true
     restart: on-failure
   ap:
-    container_name: ./app
+    container_name: app
     build:
       context: ./cmd/app
     volumes:
-      - ./app:/go"
+      - ./bin:/go"
     env_file: .env
     ports:
       - "8082:8082"
