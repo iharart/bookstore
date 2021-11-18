@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    build:
+      context: ./db
+    volumes:
+      - "./scripts/db.sql:/docker-entrypoint-initdb.d/db.sql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: bookstore
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - '3406:3306'
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=admin --execute \"SHOW DATABASES;\""
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    tty: true
+    restart: on-failure
+  ap:
+    container_name: ./app
+    build:
+      context: ./cmd/app
+    volumes:
+      - ./app:/go"
+    env_file: .env
+    ports:
+      - "8082:8082"
+    depends_on:
+       - db
+    tty: true
+
