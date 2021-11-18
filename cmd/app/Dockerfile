@@ -25,8 +25,6 @@ RUN go get -u github.com/gorilla/mux
 Run go get -u github.com/iharart/bookstore
 RUN go build -o ./app
 
-RUN go mod download
-
 #RUN go get github.com/githubnemo/CompileDaemon
 
 #ENTRYPOINT CompileDaemon --build "go build main.go" --comand=./main
