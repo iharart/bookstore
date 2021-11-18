@@ -11,6 +11,9 @@ COPY . .
 
 COPY *.go ./
 
+RUN ls
+RUN pwd
+
 RUN go mod download
 
 RUN go get -u github.com/joho/godotenv
@@ -21,6 +24,8 @@ RUN go get gorm.io/driver/mysql
 RUN go get -u github.com/gorilla/mux
 Run go get -u github.com/iharart/bookstore
 RUN go build -o ./app
+
+RUN go mod download
 
 #RUN go get github.com/githubnemo/CompileDaemon
 
