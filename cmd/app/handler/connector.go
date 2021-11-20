@@ -43,7 +43,7 @@ func (a *App) Initialize() {
 	}
 
 	fmt.Println("Start working with GORM..")
-	a.DB = model.Migrate(db)
+	db.AutoMigrate(model.Book{}, model.Genre{})
 	a.Router = mux.NewRouter()
 	a.setRouters()
 }
@@ -52,13 +52,20 @@ func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("GET")
 }
 
-func (a *App) GetAllBooks(w http.ResponseWriter, r *http.Request) {
-	GetAllBooks(a.DB, w, r)
+func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) {
+	a.Router.HandleFunc(path, f).Methods("POST")
 }
 
-func (a *App) setRouters() {
-	// Routing for handling the projects
-	a.Get("/books", a.GetAllBooks)
+func (a *App) CreateBook(w http.ResponseWriter, r *http.Request) {
+	CreateBook(a.DB, w, r)
+}
+
+func (a *App) GetBookById(w http.ResponseWriter, r *http.Request) {
+	GetBookById(a.DB, w, r)
+}
+
+func (a *App) GetAllBooks(w http.ResponseWriter, r *http.Request) {
+	GetAllBooks(a.DB, w, r)
 }
 
 func (a *App) Run(host string) {

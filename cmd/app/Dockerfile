@@ -23,6 +23,7 @@ RUN go get -u github.com/go-sql-driver/mysql
 RUN go get gorm.io/driver/mysql
 RUN go get -u github.com/gorilla/mux
 Run go get -u github.com/iharart/bookstore
+Run go get -u github.com/sirupsen/logrus
 RUN go build -o ./app
 
 #RUN go get github.com/githubnemo/CompileDaemon
