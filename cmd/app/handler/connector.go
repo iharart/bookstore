@@ -43,9 +43,10 @@ func (a *App) Initialize() {
 	}
 
 	fmt.Println("Start working with GORM..")
-	db.AutoMigrate(model.Book{}, model.Genre{})
+	a.DB = model.Migrate(db)
 	a.Router = mux.NewRouter()
-	a.setRouters()
+	a.SetUpRouters()
+
 }
 
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
@@ -54,6 +55,14 @@ func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
 
 func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("POST")
+}
+
+func (a *App) Put(path string, f func(w http.ResponseWriter, r *http.Request)) {
+	a.Router.HandleFunc(path, f).Methods("PUT")
+}
+
+func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)) {
+	a.Router.HandleFunc(path, f).Methods("DELETE")
 }
 
 func (a *App) CreateBook(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +75,14 @@ func (a *App) GetBookById(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	GetAllBooks(a.DB, w, r)
+}
+
+func (a *App) UpdateBook(w http.ResponseWriter, r *http.Request) {
+	UpdateBook(a.DB, w, r)
+}
+
+func (a *App) DeleteBook(w http.ResponseWriter, r *http.Request) {
+	DeleteBook(a.DB, w, r)
 }
 
 func (a *App) Run(host string) {

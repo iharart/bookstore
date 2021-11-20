@@ -24,6 +24,8 @@ RUN go get gorm.io/driver/mysql
 RUN go get -u github.com/gorilla/mux
 Run go get -u github.com/iharart/bookstore
 Run go get -u github.com/sirupsen/logrus
+Run go get -u github.com/stretchr/testify/assert
+Run go get -u github.com/stretchr/testify/suite
 RUN go build -o ./app
 
 #RUN go get github.com/githubnemo/CompileDaemon

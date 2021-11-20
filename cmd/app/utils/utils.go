@@ -7,6 +7,20 @@ import (
 	"strconv"
 )
 
+func StringToUint(val string) uint {
+	resUint32, err := strconv.ParseUint(val, 2, 32)
+	if err != nil {
+		panic(err)
+	}
+	return uint(resUint32)
+}
+
+func ErrorCheck(err error) {
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
 func RespondJSON(shouldBeEmpty bool, w http.ResponseWriter, status int, payload interface{}) {
 	var response []byte
 	var err error
@@ -29,18 +43,4 @@ func RespondJSON(shouldBeEmpty bool, w http.ResponseWriter, status int, payload 
 
 func RespondError(w http.ResponseWriter, code int, message string) {
 	RespondJSON(false, w, code, map[string]string{"error": message})
-}
-
-func ErrorCheck(err error) {
-	if err != nil {
-		panic(err.Error())
-	}
-}
-
-func StringToUint(val string) uint {
-	resUint32, err := strconv.ParseUint(val, 2, 32)
-	if err != nil {
-		panic(err)
-	}
-	return uint(resUint32)
 }
