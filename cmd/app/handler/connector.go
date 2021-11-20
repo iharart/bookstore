@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"net/http"
+	"os"
 )
 
 type App struct {
@@ -18,20 +20,20 @@ type App struct {
 }
 
 func (a *App) Initialize() {
-	connectionString := "admin:admin@tcp(db:3306)/bookstore?charset=utf8mb4&parseTime=True&loc=Local"
+
+	user := os.Getenv("MYSQL_USER")
+	password := os.Getenv("MYSQL_ROOT_PASSWORD")
+	serverName := os.Getenv("MYSQL_SERVERNAME")
+	dbPort := os.Getenv("MYSQL_PORT")
+	dbName := os.Getenv("MYSQL_DATABASE")
+
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user,
+		password, serverName, dbPort, dbName)
+	fmt.Println(connectionString)
 	sqlDb, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("Retrieve only one row by sql")
-	id := 1
-	var name string
-	if err := sqlDb.QueryRow("SELECT name FROM Genre WHERE id = ? LIMIT 1", id).Scan(&name); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(id, name)
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDb,
@@ -46,7 +48,13 @@ func (a *App) Initialize() {
 	a.DB = model.Migrate(db)
 	a.Router = mux.NewRouter()
 	a.SetUpRouters()
+}
 
+func LoadEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
 
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
