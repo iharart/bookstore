@@ -5,12 +5,16 @@ import (
 	"fmt"
 )
 
+const (
+	PortNumber string = "1234"
+)
+
 func Initialize() {
 
 	service := &handler.App{}
 	service.Initialize()
-	fmt.Println("Connected to port 1234")
-	service.Run(":1234")
+	fmt.Println("Connected to port " + PortNumber)
+	service.Run(":" + PortNumber)
 }
 
 func main() {
