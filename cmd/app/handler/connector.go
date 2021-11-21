@@ -12,12 +12,12 @@ import (
 	"log"
 )
 
-type App struct {
+type Service struct {
 	Router *mux.Router
 	DB     *gorm.DB
 }
 
-func (a *App) Initialize() {
+func (s *Service) Initialize() {
 	connectionString := configs.GetConnectionString()
 	fmt.Println(connectionString)
 
@@ -36,7 +36,7 @@ func (a *App) Initialize() {
 	}
 
 	fmt.Println("Start working with GORM..")
-	a.DB = model.Migrate(db)
-	a.Router = mux.NewRouter()
-	a.SetUpRouters()
+	s.DB = model.Migrate(db)
+	s.Router = mux.NewRouter()
+	s.SetUpRouters()
 }

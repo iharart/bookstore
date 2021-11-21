@@ -11,7 +11,7 @@ const (
 
 func Initialize() {
 
-	service := &handler.App{}
+	service := &handler.Service{}
 	service.Initialize()
 	fmt.Println("Connected to port " + PortNumber)
 	service.Run(":" + PortNumber)
