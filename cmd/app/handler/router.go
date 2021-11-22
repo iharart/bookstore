@@ -1,8 +1,13 @@
 package handler
 
-import "net/http"
+import (
+	"github.com/gorilla/mux"
+	"net/http"
+)
 
 func (s *Service) SetUpRouters() {
+	s.Router = mux.NewRouter()
+
 	s.Post("/books", s.CreateBook)
 	s.Get("/books/{title}", s.GetBookById)
 	s.Get("/books", s.GetAllBooks)

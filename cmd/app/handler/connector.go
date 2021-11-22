@@ -35,8 +35,5 @@ func (s *Service) Initialize() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Start working with GORM..")
 	s.DB = model.Migrate(db)
-	s.Router = mux.NewRouter()
-	s.SetUpRouters()
 }

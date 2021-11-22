@@ -26,6 +26,7 @@ Run go get -u github.com/iharart/bookstore
 Run go get -u github.com/sirupsen/logrus
 Run go get -u github.com/stretchr/testify/assert
 Run go get -u github.com/stretchr/testify/suite
+RUN apk update && apk add bash
 RUN go build -o ./app
 
 #RUN go get github.com/githubnemo/CompileDaemon
