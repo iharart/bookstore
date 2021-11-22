@@ -18,7 +18,7 @@ services:
       MYSQL_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
-      - '3406:3306'
+      - '3407:3306'
     networks:
       bookstoretest:
     healthcheck:
