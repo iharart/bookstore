@@ -8,7 +8,7 @@ import (
 func (s *Service) SetUpRouters() {
 	s.Router = mux.NewRouter()
 
-	s.Post("/books", s.CreateBook)
+	s.Post("/book", s.CreateBook)
 	s.Get("/books/{title}", s.GetBookById)
 	s.Get("/books", s.GetAllBooks)
 	s.Delete("/books/{title}", s.DeleteBook)

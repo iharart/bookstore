@@ -22,16 +22,16 @@ services:
     networks:
       bookstoretest:
     healthcheck:
-      test: "/usr/bin/mysql --user=root --password=admin --execute \"SHOW DATABASES;\""
+      test: "go test -v ./..."
       interval: 2s
       timeout: 20s
       retries: 10
     tty: true
     restart: on-failure
   tests:
-    container_name: tests
+    container_name: test_ap
     build:
-      context: ./cmd/app
+      context: cmd/bookstore
       dockerfile: ./Dockerfile.test
     volumes:
       - ./bin:/go"

@@ -1,6 +1,6 @@
 FROM golang:1.16-alpine as build-env
 
-WORKDIR ./app
+WORKDIR ./bookstore
 
 COPY go.mod .
 COPY go.sum .
@@ -27,8 +27,9 @@ RUN go get -u github.com/sirupsen/logrus
 RUN go get -u github.com/stretchr/testify/assert
 RUN go get -u github.com/stretchr/testify/suite
 RUN go get -u github.com/ory/dockertest/v3
+RUN go get -u github.com/DATA-DOG/go-sqlmock
 RUN apk update && apk add bash
-RUN go build -o ./app
+RUN go build -o ./bookstore
 
 #RUN go get github.com/githubnemo/CompileDaemon
 
@@ -38,4 +39,4 @@ RUN go build -o ./app
 EXPOSE 8082
 
 RUN ls
-CMD ["./app"]
+CMD ["./bookstore"]
