@@ -33,7 +33,7 @@ services:
     container_name: bookstore
     hostname: bookstore
     build:
-      context: cmd/bookstore
+      context: ./cmd/bookstore
     volumes:
       - ./bin:/go"
     env_file: .env
@@ -43,6 +43,6 @@ services:
       - bookstorenet
     depends_on:
        - db
-    #command:  ["./wait-for-it.sh", "db:3306", "--", "go", "run", "main.go"]
+    command:  ["./wait-for-it.sh", "db:3306", "--", "go", "run", "main.go"]
     tty: true
 

@@ -21,10 +21,10 @@ func (s *Service) Initialize() {
 	var sqlDb *sql.DB
 	var err error
 
-	count := utils.StringToUint(os.Getenv("MYSQL_MAX_CONN_COUNT"))
-	timeout := utils.StringToUint(os.Getenv("MYSQL_TIMEOUT"))
+	count := utils.StringToInt(os.Getenv("MYSQL_MAX_CONN_COUNT"))
+	timeout := utils.StringToInt(os.Getenv("MYSQL_TIMEOUT"))
 
-	for i := uint(0); i <= count; i++ {
+	for i := 0; i <= count; i++ {
 		sqlDb, err = sql.Open("mysql", connectionString)
 		if err != nil {
 			log.Fatal(err)

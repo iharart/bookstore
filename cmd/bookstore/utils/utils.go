@@ -15,6 +15,14 @@ func StringToUint(val string) uint {
 	return uint(resUint32)
 }
 
+func StringToInt(val string) int {
+	res, err := strconv.Atoi(val)
+	if err != nil {
+		panic(err)
+	}
+	return res
+}
+
 func ErrorCheck(err error) {
 	if err != nil {
 		panic(err.Error())
