@@ -1,10 +1,10 @@
 package handler
 
 import (
-	model "bookstore/model"
-	utils "bookstore/utils"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	model "github.com/iharart/bookstore/app/model"
+	utils "github.com/iharart/bookstore/app/utils"
 	"gorm.io/gorm"
 	"log"
 	"net/http"

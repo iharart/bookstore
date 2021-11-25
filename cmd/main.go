@@ -1,8 +1,8 @@
 package main
 
 import (
-	handler "bookstore/handler"
 	"fmt"
+	handler "github.com/iharart/bookstore/app/handler"
 )
 
 const (

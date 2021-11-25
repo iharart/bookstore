@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"bookstore/configs"
-	"bookstore/model"
-	"bookstore/utils"
 	"database/sql"
 	"fmt"
+	"github.com/iharart/bookstore/app/configs"
+	"github.com/iharart/bookstore/app/model"
+	"github.com/iharart/bookstore/app/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
