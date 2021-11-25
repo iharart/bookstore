@@ -30,10 +30,10 @@ services:
     tty: true
     restart: on-failure
   ap:
-    container_name: bookstore
-    hostname: bookstore
+    container_name: app
+    hostname: app
     build:
-      context: ./cmd/bookstore
+      context: cmd/app
     volumes:
       - ./bin:/go"
     env_file: .env

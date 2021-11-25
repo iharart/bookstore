@@ -19,9 +19,11 @@ test build:
 	@echo "building test.."
 	docker-compose -f docker-compose.test.yml build --no-cache
 
-test_run:
+test run:
 	@echo "running test.."
-	docker-compose -f docker-compose.test.yml up --build
+	cd ./cmd/bookstore/test &\
+	go test -v ./...
+
 test stop:
 	@echo "stopping test.."
 	docker-compose -f docker-compose.test.yml stop

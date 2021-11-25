@@ -31,7 +31,7 @@ services:
   tests:
     container_name: test_ap
     build:
-      context: cmd/bookstore
+      context: cmd/app
       dockerfile: ./Dockerfile.test
     volumes:
       - ./bin:/go"
