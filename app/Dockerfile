@@ -22,7 +22,7 @@ RUN go get -u gorm.io/gorm
 RUN go get -u github.com/go-sql-driver/mysql
 RUN go get gorm.io/driver/mysql
 RUN go get -u github.com/gorilla/mux
-RUN go get -u github.com/iharart/app
+#RUN go get -u github.com/iharart/app
 RUN go get -u github.com/sirupsen/logrus
 RUN go get -u github.com/stretchr/testify/assert
 RUN go get -u github.com/stretchr/testify/suite

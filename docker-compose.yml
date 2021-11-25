@@ -33,7 +33,7 @@ services:
     container_name: app
     hostname: app
     build:
-      context: cmd/app
+      context: app
     volumes:
       - ./bin:/go"
     env_file: .env
