@@ -1,10 +1,9 @@
-package handler
+package database
 
 import (
 	"database/sql"
 	"fmt"
 	"github.com/iharart/bookstore/app/configs"
-	"github.com/iharart/bookstore/app/model"
 	"github.com/iharart/bookstore/app/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -14,7 +13,9 @@ import (
 	"time"
 )
 
-func (s *Service) Initialize() {
+var DB *gorm.DB
+
+func Initialize() {
 	connectionString := configs.GetConnectionString()
 	fmt.Println(connectionString)
 
@@ -52,5 +53,9 @@ func (s *Service) Initialize() {
 		log.Fatal(err)
 	}
 
-	s.DB = model.Migrate(db)
+	DB = Migrate(db)
+}
+
+func GetDB() *gorm.DB {
+	return DB
 }

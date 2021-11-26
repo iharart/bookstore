@@ -2,22 +2,19 @@ package main
 
 import (
 	"fmt"
-	handler "github.com/iharart/bookstore/app/handler"
+	database "github.com/iharart/bookstore/app/database"
+	router "github.com/iharart/bookstore/app/router"
+	"log"
+	"net/http"
 )
 
 const (
 	PortNumber string = "1234"
 )
 
-func Initialize() {
-
-	service := &handler.Service{}
-	service.Initialize()
-	service.SetUpRouters()
-	fmt.Println("Connected to port " + PortNumber)
-	service.Run(":" + PortNumber)
-}
-
 func main() {
-	Initialize()
+	database.Initialize()
+	r := router.SetUp()
+	fmt.Println("Connected to port " + PortNumber)
+	log.Fatal(http.ListenAndServe(":"+PortNumber, r))
 }
