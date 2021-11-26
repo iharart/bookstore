@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	model "github.com/iharart/bookstore/app/model"
 	"gorm.io/gorm"
 )
@@ -11,11 +12,12 @@ func GetBookByID(id uint, db *gorm.DB) (model.Book, bool, error) {
 	query = query.Group("books.id")
 	err := query.Where("books.id = ?", id).First(&book).Error*/
 	err := db.First(&book, model.Book{ID: id}).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return book, false, err
 	}
 
-	if gorm.IsRecordNotFoundError(err) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return book, false, nil
 	}
 	return book, true, nil
