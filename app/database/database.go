@@ -1,13 +1,11 @@
 package database
 
 import (
-	"github.com/gorilla/mux"
 	model "github.com/iharart/bookstore/app/model"
-	utils "github.com/iharart/bookstore/app/utils"
 	"gorm.io/gorm"
 )
 
-func GetBookByID(id uint, db *gorm.DB) (models.Book, bool, error) {
+func GetBookByID(id uint, db *gorm.DB) (model.Book, bool, error) {
 	book := model.Book{}
 	/*query := db.Select("books.*")
 	query = query.Group("books.id")
@@ -32,7 +30,7 @@ func GetAllBooks(db *gorm.DB) ([]model.Book, error) {
 }
 
 func DeleteBook(id uint, db *gorm.DB) error {
-	var book models.Book
+	var book model.Book
 	/*if err := db.Where("id = ? ", id).Delete(&book).Error; err != nil {
 		return err
 	}*/
@@ -42,7 +40,7 @@ func DeleteBook(id uint, db *gorm.DB) error {
 	return nil
 }
 
-func UpdateBook(db *gorm.DB, book *models.Book) error {
+func UpdateBook(db *gorm.DB, book *model.Book) error {
 	if err := db.Save(&book).Error; err != nil {
 		return err
 	}
