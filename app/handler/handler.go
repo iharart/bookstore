@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	database "github.com/iharart/bookstore/app/database"
 	"github.com/iharart/bookstore/app/model"
 	"github.com/iharart/bookstore/app/utils"
@@ -58,7 +59,7 @@ func (a *APIEnv) UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 	updatedBook := model.Book{}
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&book); err != nil {
+	if err := decoder.Decode(&updatedBook); err != nil {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusBadRequest, err.Error()) // or http.StatusInternalServerError?
 		return
@@ -76,7 +77,7 @@ func (a *APIEnv) UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 func (a *APIEnv) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	id := getId(r)
-	_, exists, err := database.GetBookByID(id, a.DB)
+	book, exists, err := database.GetBookByID(id, a.DB)
 	if err != nil {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusInternalServerError, err.Error())
