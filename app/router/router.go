@@ -18,9 +18,9 @@ func SetUp() *mux.Router {
 		DB: database.GetDB(),
 	}
 	w.Post("/book", api.CreateBook)
-	w.Get("/books/{title}", api.GetBookById)
+	w.Get("/book/{id}", api.GetBookById)
 	w.Get("/books", api.GetAllBooks)
-	w.Delete("/books/{title}", api.DeleteBook)
+	w.Delete("/books/{id}", api.DeleteBook)
 	w.Put("/books/{title}", api.UpdateBook)
 	return w.Router
 }

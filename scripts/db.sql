@@ -4,17 +4,17 @@ USE bookstore;
 CREATE TABLE Genre
 (
     id                          bigint(20)   UNSIGNED NOT NULL,
-    name                        varchar(99)  DEFAULT NULL,
+    name                        varchar(99)  NOT NULL,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE Book
 (
     id                          bigint(20)   UNSIGNED NOT NULL,
-    name                        varchar(99)  DEFAULT NULL,
+    name                        varchar(99)  NOT NULL,
     genre_id                    bigint(20)   UNSIGNED NOT NULL,
-    price                       double(10,2) UNSIGNED DEFAULT 0,
-    amount                      bigint(20)   UNSIGNED DEFAULT 0,
+    price                       double(10,2) UNSIGNED NOT NULL,
+    amount                      bigint(20)   UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (genre_id)  REFERENCES Genre (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
