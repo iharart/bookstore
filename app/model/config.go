@@ -1,15 +1,15 @@
 package model
 
 type Book struct {
-	ID      uint    `gorm:"primaryKey" json:"id"`
-	Name    string  `json:"name"`
-	GenreID int     `json:"-"`
-	Price   float64 `json:"price"`
-	Amount  uint    `json:"amount"`
+	ID      uint    `json:"id" gorm:"primaryKey"`
+	Name    string  `json:"name" gorm:"unique;size:100;not null;"`
+	GenreID int     `json:"-" gorm:"not null"`
+	Price   float64 `json:"price" gorm:"not null"`
+	Amount  uint    `json:"amount" gorm:"not null"`
 	Genre   Genre   `gorm:"foreignKey:GenreID"`
 }
 
 type Genre struct {
-	ID   int    `gorm:"gorm:primaryKey" json:"id"`
-	Name string `json:"name"`
+	ID   int    `json:"id" gorm:"gorm:primaryKey"`
+	Name string `json:"name" gorm:"unique;type:varchar(100);not null"`
 }

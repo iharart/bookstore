@@ -2,84 +2,152 @@ package test
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/iharart/bookstore/app/database"
+	_ "github.com/iharart/bookstore/app/database"
+	"github.com/iharart/bookstore/app/handler"
+	"github.com/iharart/bookstore/app/model"
+	"github.com/iharart/bookstore/app/router"
 	"github.com/ory/dockertest/v3"
+	"github.com/ory/dockertest/v3/docker"
+	"github.com/stretchr/testify/suite"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"io/ioutil"
 	"log"
-	"os"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-var db *sql.DB
+type TestSuiteEnv struct {
+	suite.Suite
+	pool     *dockertest.Pool
+	resource *dockertest.Resource
+	sqlDb    *sql.DB
+	api      handler.APIEnv
+	wrapper  router.Wrapper
+	book     *model.Book
+	genre    *model.Genre
+}
 
-func TestMain(m *testing.M) {
+func TestSuite(t *testing.T) {
+	suite.Run(t, new(TestSuiteEnv))
+}
 
-	/*pool, err := dockertest.NewPool("")
-	if err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
-	}
-	resource, err := pool.BuildAndRun("db", "../../../scripts/Dockerfile", []string{"MYSQL_ROOT_PASSWORD=admin"})
-	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
-	}
-	/*resource, err := pool.Run("db", "latest", []string{})
-	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
-	}*/
+func (s *TestSuiteEnv) SetupSuite() {
+	s.Initialize()
+}
 
-	/*if err := pool.Retry(func() error {
-		var err error
-		db, err = sql.Open("mysql", fmt.Sprintf("admin:admin@(localhost:%s)/app", resource.GetPort("3306/tcp")))
-		//db, err = sql.Open("mysql", fmt.Sprintf("admin:admin@tcp(db:3306)/app"))
-		if err != nil {
-			return err
-		}
-		return db.Ping()
-	}); err != nil {
-		log.Fatalf("Could not connect to database: %s", err)
-	}
-
-	code := m.Run()
-
-	if err := pool.Purge(resource); err != nil {
+func (s *TestSuiteEnv) TearDownSuite() {
+	if err := s.sqlDb.Close(); err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
 
-	os.Exit(code)*/
-	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
+	if err := s.pool.Purge(s.resource); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+}
+
+func (s *TestSuiteEnv) Initialize() {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run("mysql", "5.7", []string{"MYSQL_ROOT_PASSWORD=admin",
-		"MYSQL_DATABASE=app", "MYSQL_USER=admin", "MYSQL_ROOT_PASSWORD=admin"})
+	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Repository: "mysql",
+		Tag:        "5.7",
+		Env: []string{
+			"MYSQL_ALLOW_EMPTY_PASSWORD=true",
+			"MYSQL_ROOT_PASSWORD=admin",
+			"MYSQL_DATABASE=bookstore",
+			"MYSQL_USER=admin",
+			"MYSQL_PASSWORD=admin",
+		},
+		Tty: true,
+	}, func(config *docker.HostConfig) {
+		config.RestartPolicy = docker.RestartUnlessStopped()
+	})
 	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
+		log.Fatalf("could not start resource: %s", err)
 	}
 
-	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	if err := pool.Retry(func() error {
 		var err error
-		db, err = sql.Open("mysql", fmt.Sprintf("root:secret@(localhost:%s)/mysql", resource.GetPort("2222/tcp")))
+		s.sqlDb, err = sql.Open("mysql", fmt.Sprintf("admin:admin@(localhost:%s)/bookstore", resource.GetPort("3306/tcp")))
 		if err != nil {
 			return err
 		}
-		return db.Ping()
+		return s.sqlDb.Ping()
 	}); err != nil {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
-
-	code := m.Run()
-
-	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+	db, err := gorm.Open(mysql.New(mysql.Config{
+		Conn: s.sqlDb,
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	os.Exit(code)
+	s.api.DB = database.Migrate(db)
+	s.pool = pool
+	s.resource = resource
 }
 
-func TestResponds(t *testing.T) {
+func (s *TestSuiteEnv) TestAddGenresOk() {
+	if err := s.api.DB.Save(&SampleGenresOk).Error; err != nil {
+		s.Fail("Fail TestAddGenresOk", err)
+	}
+}
 
+func (s *TestSuiteEnv) TestAddGenresFail() {
+	if err := s.api.DB.Create(&SampleGenresFail).Error; err == nil {
+		s.Fail("Fail TestAddGenresFail", err)
+	}
+}
+
+func (s *TestSuiteEnv) TestGetBooksEmptyResult() {
+
+	s.ClearTable(&model.Book{})
+	req, w := setGetBooksRouter(s)
+	a := s.Assert()
+
+	a.Equal(http.MethodGet, req.Method, "HTTP request method error")
+	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
+
+	body, err := ioutil.ReadAll(w.Body)
+	if err != nil {
+		a.Error(err)
+	}
+	actual := model.Book{}
+	if err := json.Unmarshal(body, &actual); err != nil {
+		a.Error(err)
+	}
+
+	expected := model.Book{}
+	a.Equal(expected, actual)
+
+}
+
+func setGetBooksRouter(s *TestSuiteEnv) (*http.Request, *httptest.ResponseRecorder) {
+	s.wrapper.Router = mux.NewRouter()
+	s.wrapper.Get("/books", s.api.GetAllBooks)
+	req, err := http.NewRequest(http.MethodGet, "/books", nil)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	s.wrapper.Router.ServeHTTP(w, req)
+	return req, w
+}
+
+func (s *TestSuiteEnv) ClearTable(payload interface{}) {
+	s.api.DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(payload)
 }

@@ -29,7 +29,6 @@ RUN go get -u github.com/sirupsen/logrus
 RUN go get -u github.com/stretchr/testify/assert
 RUN go get -u github.com/stretchr/testify/suite
 RUN go get -u github.com/ory/dockertest/v3
-RUN go get -u github.com/DATA-DOG/go-sqlmock
 RUN apk update && apk add bash
 
 RUN go build -o github.com/iharart/bookstore/app/cmd
