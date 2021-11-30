@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Migrate(db *gorm.DB) *gorm.DB {
+func Migrate(db *gorm.DB) (*gorm.DB, error) {
 	db.AutoMigrate(&model.Book{}, &model.Genre{})
-	return db
+	return db, db.Error
 }

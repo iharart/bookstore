@@ -77,7 +77,7 @@ func (a *APIEnv) UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 func (a *APIEnv) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	id := getId(r)
-	book, exists, err := database.GetBookByID(id, a.DB)
+	_, exists, err := database.GetBookByID(id, a.DB)
 	if err != nil {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusInternalServerError, err.Error())
@@ -96,7 +96,7 @@ func (a *APIEnv) DeleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondJSON(true, w, http.StatusOK, book) //or nil?
+	utils.RespondJSON(true, w, http.StatusOK, nil)
 }
 
 func (a *APIEnv) CreateBook(w http.ResponseWriter, r *http.Request) {
@@ -106,13 +106,11 @@ func (a *APIEnv) CreateBook(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusBadRequest, err.Error())
 	}
-
-	if err := a.DB.Create(&book).Error; err != nil { //or Save(&book)
+	if err := a.DB.Create(&book).Error; err != nil {
 		utils.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	utils.RespondJSON(true, w, http.StatusOK, book) // will return object, not only id
+	utils.RespondJSON(true, w, http.StatusOK, book.ID)
 }
 
 func getId(r *http.Request) uint {

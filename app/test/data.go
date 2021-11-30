@@ -27,3 +27,27 @@ var SampleGenresOk = []model.Genre{
 		Name: "Fantasy",
 	},
 }
+
+var SampleBook = model.Book{
+	ID:      5,
+	Name:    "The Three Musketeers",
+	GenreID: 1,
+	Price:   10.44,
+	Amount:  5,
+}
+
+var SampleGetBookById = model.Book{
+	ID:      6,
+	Name:    "The Great Gatsby",
+	GenreID: 1,
+	Price:   100,
+	Amount:  5,
+}
+
+var SampleUpdateBookOk = model.Book{
+	ID:      5,
+	Name:    "The Three Musketeers",
+	GenreID: 1,
+	Price:   19.44,
+	Amount:  20,
+}

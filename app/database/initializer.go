@@ -38,8 +38,8 @@ func Initialize() {
 			fmt.Printf("Conection trying %d\n", i)
 			time.Sleep(time.Duration(timeout) * time.Second)
 		} else {
-			break
 			fmt.Println("Ping succeeded")
+			break
 		}
 	}
 	fmt.Println("Successfully connect to sqlDb")
@@ -49,11 +49,10 @@ func Initialize() {
 	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.ErrorCheck(err)
 
-	DB = Migrate(db)
+	DB, err = Migrate(db)
+	utils.ErrorCheck(err)
 }
 
 func GetDB() *gorm.DB {
