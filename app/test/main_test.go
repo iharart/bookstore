@@ -26,6 +26,11 @@ import (
 	"testing"
 )
 
+const (
+	ConnectionString = "admin:admin@(localhost:%s)/bookstore?charset=utf8mb4&parseTime=True&loc=Local"
+	Port             = "3306/tcp"
+)
+
 func TestSuite(t *testing.T) {
 	suite.Run(t, new(TestSuiteEnv))
 }
@@ -78,8 +83,8 @@ func (s *TestSuiteEnv) Initialize() {
 
 	if err := pool.Retry(func() error {
 		var err error
-		s.sqlDb, err = sql.Open("mysql", fmt.Sprintf("admin:admin@(localhost:%s)/bookstore?charset=utf8mb4&parseTime=True&loc=Local",
-			resource.GetPort("3306/tcp")))
+		s.sqlDb, err = sql.Open("mysql", fmt.Sprintf(ConnectionString,
+			resource.GetPort(Port)))
 		if err != nil {
 			return err
 		}
