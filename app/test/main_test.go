@@ -11,7 +11,6 @@ import (
 	_ "github.com/iharart/bookstore/app/database"
 	"github.com/iharart/bookstore/app/handler"
 	"github.com/iharart/bookstore/app/model"
-	"github.com/iharart/bookstore/app/router"
 	"github.com/iharart/bookstore/app/utils"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
@@ -26,15 +25,6 @@ import (
 	"net/http/httptest"
 	"testing"
 )
-
-type TestSuiteEnv struct {
-	suite.Suite
-	pool     *dockertest.Pool
-	resource *dockertest.Resource
-	sqlDb    *sql.DB
-	api      handler.APIEnv
-	provider router.Provider
-}
 
 func TestSuite(t *testing.T) {
 	suite.Run(t, new(TestSuiteEnv))

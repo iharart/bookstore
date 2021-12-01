@@ -2,15 +2,20 @@ package database
 
 import (
 	"errors"
-	model "github.com/iharart/bookstore/app/model"
+	"github.com/iharart/bookstore/app/model"
 	"gorm.io/gorm"
+)
+
+const (
+	ErrorDbIsNil = "db is null"
 )
 
 func GetBookByID(id uint, db *gorm.DB) (model.Book, bool, error) {
 	book := model.Book{}
-	/*query := db.Select("books.*")
-	query = query.Group("books.id")
-	err := query.Where("books.id = ?", id).First(&book).Error*/
+
+	if err := DbCheck(db); err != nil {
+		return book, false, err
+	}
 	err := db.First(&book, model.Book{ID: id}).Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -25,6 +30,10 @@ func GetBookByID(id uint, db *gorm.DB) (model.Book, bool, error) {
 
 func GetAllBooks(db *gorm.DB) ([]model.Book, error) {
 	books := []model.Book{}
+
+	if err := DbCheck(db); err != nil {
+		return nil, err
+	}
 	if err := db.Debug().Preload(model.GENRE).Order("name").Find(&books).Error; err != nil {
 		return books, err
 	}
@@ -33,9 +42,11 @@ func GetAllBooks(db *gorm.DB) ([]model.Book, error) {
 
 func DeleteBook(id uint, db *gorm.DB) error {
 	var book model.Book
-	/*if err := db.Where("id = ? ", id).Delete(&book).Error; err != nil {
+
+	if err := DbCheck(db); err != nil {
 		return err
-	}*/
+	}
+
 	if err := db.Delete(&book, id).Error; err != nil {
 		return err
 	}
@@ -43,8 +54,18 @@ func DeleteBook(id uint, db *gorm.DB) error {
 }
 
 func UpdateBook(db *gorm.DB, book *model.Book) error {
+	if err := DbCheck(db); err != nil {
+		return err
+	}
 	if err := db.Save(&book).Error; err != nil {
 		return err
+	}
+	return nil
+}
+
+func DbCheck(db *gorm.DB) error {
+	if db == nil {
+		return errors.New(ErrorDbIsNil)
 	}
 	return nil
 }

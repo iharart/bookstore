@@ -14,7 +14,11 @@ app_remove:
 
 test_run:
 	@echo "running test.."
-	cd ./cmd/bookstore/test &\
-	go test -v ./...
+	cd ./app/ &\
+	go test -v ./test/...
+	cd ./app/ &\
+	go test -v ./database/...
+	cd ./app/ &\
+	go test -v ./utils/...
 
 
