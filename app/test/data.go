@@ -36,6 +36,14 @@ var SampleBook = model.Book{
 	Amount:  5,
 }
 
+var SampleBookNegativePrice = model.Book{
+	ID:      5,
+	Name:    "The Three Musketeers",
+	GenreID: 1,
+	Price:   -100.44,
+	Amount:  7,
+}
+
 var SampleGetBookById = model.Book{
 	ID:      6,
 	Name:    "The Great Gatsby",

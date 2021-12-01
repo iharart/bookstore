@@ -54,5 +54,9 @@ func RespondJSON(shouldBeEmpty bool, w http.ResponseWriter, status int, payload 
 }
 
 func RespondError(w http.ResponseWriter, code int, message string) {
-	RespondJSON(false, w, code, map[string]string{"error": message})
+	RespondJSON(false, w, code, map[string]string{"Error": message})
+}
+
+type ErrResult struct {
+	Error string
 }

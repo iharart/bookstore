@@ -15,6 +15,7 @@ import (
 	"github.com/iharart/bookstore/app/utils"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -41,6 +42,11 @@ func TestSuite(t *testing.T) {
 
 func (s *TestSuiteEnv) SetupSuite() {
 	s.Initialize()
+}
+
+func (s *TestSuiteEnv) TearDownTest() {
+	s.ClearTable(&model.Book{})
+	s.ClearTable(&model.Genre{})
 }
 
 func (s *TestSuiteEnv) TearDownSuite() {
@@ -118,8 +124,7 @@ func (s *TestSuiteEnv) TestAddGenresFail() {
 	}
 }
 
-func (s *TestSuiteEnv) TestGetBooksEmptyResult() {
-	s.ClearTable(&model.Book{})
+func (s *TestSuiteEnv) TestGetBooks() {
 	req, w := setGetBooksRouter(s)
 	a := s.Assert()
 
@@ -127,9 +132,7 @@ func (s *TestSuiteEnv) TestGetBooksEmptyResult() {
 	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
 
 	body, err := ioutil.ReadAll(w.Body)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 	actual := model.Book{}
 	if err := json.Unmarshal(body, &actual); err != nil {
 		a.Error(err)
@@ -148,45 +151,30 @@ func setGetBooksRouter(s *TestSuiteEnv) (*http.Request, *httptest.ResponseRecord
 		panic(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	s.provider.Router.ServeHTTP(w, req)
-	return req, w
+	return ServeHTTP(s, req)
 }
 
 func (s *TestSuiteEnv) ClearTable(payload interface{}) {
 	s.api.DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(payload)
 }
 
-func (s *TestSuiteEnv) ResetPrimaryKey(tableName string) {
-	s.api.DB.Exec("ALTER TABLE " + tableName + " DROP PRIMARY KEY, ADD PRIMARY KEY (  `id` )")
-}
-
 func (s *TestSuiteEnv) TestCreateBookOK() {
-	s.ClearTable(&model.Book{})
-	s.ResetPrimaryKey("Book")
-	s.ClearTable(&model.Genre{})
 
 	s.TestAddGenresOk()
 	a := s.Assert()
 	book := SampleBook
 
 	reqBody, err := json.Marshal(book)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	req, w, err := setCreateBookRouter(s, bytes.NewBuffer(reqBody))
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	a.Equal(http.MethodPost, req.Method, "HTTP request method error")
 	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
 
 	body, err := ioutil.ReadAll(w.Body)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	actual := model.Book{}
 	if err := json.Unmarshal(body, &actual.ID); err != nil {
@@ -195,7 +183,7 @@ func (s *TestSuiteEnv) TestCreateBookOK() {
 
 	expected := book
 	a.Equal(expected.ID, actual.ID)
-	s.ClearTable(&model.Book{})
+	s.TestGetBooks()
 }
 
 func setCreateBookRouter(s *TestSuiteEnv, body *bytes.Buffer) (*http.Request, *httptest.ResponseRecorder, error) {
@@ -208,18 +196,43 @@ func setCreateBookRouter(s *TestSuiteEnv, body *bytes.Buffer) (*http.Request, *h
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	s.provider.Router.ServeHTTP(w, req)
-	return req, w, nil
+	return ServeHTTPe(s, req, nil)
 }
 
-func (s *TestSuiteEnv) TestGetBookById() {
+func (s *TestSuiteEnv) TestCreateBookBadData() {
+
+	s.TestAddGenresOk()
 	a := s.Assert()
-	book := SampleGetBookById
-	err := insertTestBook(s, &book)
-	if err != nil {
+	book := SampleBookNegativePrice
+
+	reqBody, err := json.Marshal(book)
+	ErrorCheck(a, err)
+
+	req, w, err := setCreateBookRouter(s, bytes.NewBuffer(reqBody))
+	ErrorCheck(a, err)
+
+	a.Equal(http.MethodPost, req.Method, "HTTP request method error")
+	a.Equal(http.StatusBadRequest, w.Code, "HTTP request status code error")
+
+	body, err := ioutil.ReadAll(w.Body)
+	ErrorCheck(a, err)
+
+	result := utils.ErrResult{}
+	if err := json.Unmarshal(body, &result); err != nil {
 		a.Error(err)
 	}
+	actual := result.Error
+	expected := handler.BadRequest
+
+	a.Equal(expected, actual)
+}
+
+func (s *TestSuiteEnv) TestGetBookByIdOK() {
+	a := s.Assert()
+	s.TestAddGenresOk()
+	book := SampleGetBookById
+	err := insertTestBook(s, &book)
+	ErrorCheck(a, err)
 
 	bookId := utils.UintToString(SampleGetBookById.ID)
 	req, w := setGetBookRouter(s, bookId)
@@ -228,9 +241,7 @@ func (s *TestSuiteEnv) TestGetBookById() {
 	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
 
 	body, err := ioutil.ReadAll(w.Body)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	actual := model.Book{}
 	if err := json.Unmarshal(body, &actual); err != nil {
@@ -257,9 +268,7 @@ func setGetBookRouter(s *TestSuiteEnv, bookId string) (*http.Request, *httptest.
 
 	req = mux.SetURLVars(req, vars)
 
-	w := httptest.NewRecorder()
-	s.provider.Router.ServeHTTP(w, req)
-	return req, w
+	return ServeHTTP(s, req)
 }
 
 func insertTestBook(s *TestSuiteEnv, book *model.Book) error {
@@ -267,37 +276,49 @@ func insertTestBook(s *TestSuiteEnv, book *model.Book) error {
 	return err
 }
 
+func (s *TestSuiteEnv) TestGetBookByIdWithNotFound() {
+	a := s.Assert()
+	s.TestAddGenresOk()
+
+	bookId := "1000"
+	req, w := setGetBookRouter(s, bookId)
+
+	a.Equal(http.MethodGet, req.Method, "HTTP request method error")
+	a.Equal(http.StatusNotFound, w.Code, "HTTP request status code error")
+
+	body, err := ioutil.ReadAll(w.Body)
+	ErrorCheck(a, err)
+
+	result := utils.ErrResult{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		a.Error(err)
+	}
+	actual := result.Error
+	expected := handler.RecordNotFound
+
+	a.Equal(expected, actual)
+}
+
 func (s *TestSuiteEnv) TestUpdateBookOK() {
-	s.ClearTable(&model.Book{})
-	s.ResetPrimaryKey("Book")
-	s.ClearTable(&model.Genre{})
 
 	s.TestAddGenresOk()
 	a := s.Assert()
 	book := SampleUpdateBookOk
 
 	err := insertTestBook(s, &SampleBook)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	reqBody, err := json.Marshal(book)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 	bookId := utils.UintToString(SampleUpdateBookOk.ID)
 	req, w, err := setUpdateBookRouter(s, bookId, bytes.NewBuffer(reqBody))
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	a.Equal(http.MethodPut, req.Method, "HTTP request method error")
 	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
 
 	body, err := ioutil.ReadAll(w.Body)
-	if err != nil {
-		a.Error(err)
-	}
+	ErrorCheck(a, err)
 
 	actual := model.Book{}
 	if err := json.Unmarshal(body, &actual); err != nil {
@@ -326,30 +347,65 @@ func setUpdateBookRouter(s *TestSuiteEnv, bookId string, body *bytes.Buffer) (*h
 	}
 
 	req = mux.SetURLVars(req, vars)
-	w := httptest.NewRecorder()
-	s.provider.Router.ServeHTTP(w, req)
-	return req, w, nil
+	return ServeHTTPe(s, req, nil)
+}
+
+func (s *TestSuiteEnv) TestUpdateBookWithIdNotFound() {
+
+	s.TestAddGenresOk()
+	a := s.Assert()
+	book := SampleUpdateBookOk
+
+	reqBody, err := json.Marshal(book)
+	ErrorCheck(a, err)
+	bookId := utils.UintToString(SampleUpdateBookOk.ID)
+	req, w, err := setUpdateBookRouter(s, bookId, bytes.NewBuffer(reqBody))
+	ErrorCheck(a, err)
+
+	a.Equal(http.MethodPut, req.Method, "HTTP request method error")
+	a.Equal(http.StatusNotFound, w.Code, "HTTP request status code error")
+
+	body, err := ioutil.ReadAll(w.Body)
+	ErrorCheck(a, err)
+
+	result := utils.ErrResult{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		a.Error(err)
+	}
+	actual := result.Error
+	expected := handler.RecordNotFound
+
+	a.Equal(expected, actual)
 }
 
 func (s *TestSuiteEnv) TestDeleteBookOk() {
-	s.ClearTable(&model.Book{})
-	s.ResetPrimaryKey("Book")
-	s.ClearTable(&model.Genre{})
 
 	s.TestAddGenresOk()
 
 	a := s.Assert()
 	book := SampleGetBookById
 	err := insertTestBook(s, &book)
-	if err != nil {
-		a.Error(err)
-	}
+
+	ErrorCheck(a, err)
 
 	bookId := utils.UintToString(SampleGetBookById.ID)
 	req, w := setDeleteBookRouter(s, bookId)
 
 	a.Equal(http.MethodDelete, req.Method, "HTTP request method error")
 	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
+}
+
+func (s *TestSuiteEnv) TestDeleteBookNotFound() {
+
+	s.TestAddGenresOk()
+
+	a := s.Assert()
+
+	bookId := "1000"
+	req, w := setDeleteBookRouter(s, bookId)
+
+	a.Equal(http.MethodDelete, req.Method, "HTTP request method error")
+	a.Equal(http.StatusNotFound, w.Code, "HTTP request status code error")
 }
 
 func setDeleteBookRouter(s *TestSuiteEnv, bookId string) (*http.Request, *httptest.ResponseRecorder) {
@@ -369,7 +425,23 @@ func setDeleteBookRouter(s *TestSuiteEnv, bookId string) (*http.Request, *httpte
 
 	req = mux.SetURLVars(req, vars)
 
+	return ServeHTTP(s, req)
+}
+
+func ErrorCheck(a *assert.Assertions, err error) {
+	if err != nil {
+		a.Error(err)
+	}
+}
+
+func ServeHTTP(s *TestSuiteEnv, req *http.Request) (*http.Request, *httptest.ResponseRecorder) {
 	w := httptest.NewRecorder()
 	s.provider.Router.ServeHTTP(w, req)
 	return req, w
+}
+
+func ServeHTTPe(s *TestSuiteEnv, req *http.Request, err error) (*http.Request, *httptest.ResponseRecorder, error) {
+	w := httptest.NewRecorder()
+	s.provider.Router.ServeHTTP(w, req)
+	return req, w, err
 }

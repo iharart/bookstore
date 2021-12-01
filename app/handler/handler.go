@@ -11,6 +11,12 @@ import (
 	"net/http"
 )
 
+const (
+	RecordNotFound      = "record not found"
+	BadRequest          = "bad request"
+	InternalServerError = "internal server error"
+)
+
 type APIEnv struct {
 	DB *gorm.DB
 }
@@ -20,12 +26,12 @@ func (a *APIEnv) GetBookById(w http.ResponseWriter, r *http.Request) {
 	book, exists, err := database.GetBookByID(id, a.DB)
 	if err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	if !exists {
-		utils.RespondError(w, http.StatusNotFound, err.Error())
+		utils.RespondError(w, http.StatusNotFound, RecordNotFound)
 		return
 	}
 
@@ -36,7 +42,7 @@ func (a *APIEnv) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	books, err := database.GetAllBooks(a.DB)
 	if err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -48,12 +54,12 @@ func (a *APIEnv) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	_, exists, err := database.GetBookByID(id, a.DB)
 	if err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	if !exists {
-		utils.RespondError(w, http.StatusNotFound, err.Error())
+		utils.RespondError(w, http.StatusNotFound, RecordNotFound)
 		return
 	}
 
@@ -61,14 +67,14 @@ func (a *APIEnv) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedBook); err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusBadRequest, err.Error()) // or http.StatusInternalServerError?
+		utils.RespondError(w, http.StatusBadRequest, BadRequest) // or http.StatusInternalServerError?
 		return
 	}
 	defer r.Body.Close()
 
 	if err := database.UpdateBook(a.DB, &updatedBook); err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -80,19 +86,19 @@ func (a *APIEnv) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	_, exists, err := database.GetBookByID(id, a.DB)
 	if err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	if !exists {
-		utils.RespondError(w, http.StatusNotFound, err.Error())
+		utils.RespondError(w, http.StatusNotFound, RecordNotFound)
 		return
 	}
 
 	err = database.DeleteBook(id, a.DB)
 	if err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -104,10 +110,10 @@ func (a *APIEnv) CreateBook(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&book); err != nil {
 		fmt.Println(err)
-		utils.RespondError(w, http.StatusBadRequest, err.Error())
+		utils.RespondError(w, http.StatusBadRequest, BadRequest)
 	}
 	if err := a.DB.Create(&book).Error; err != nil {
-		utils.RespondError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondError(w, http.StatusBadRequest, BadRequest)
 		return
 	}
 	utils.RespondJSON(true, w, http.StatusOK, book.ID)
