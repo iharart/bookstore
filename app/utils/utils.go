@@ -42,7 +42,10 @@ func RespondJSON(shouldBeEmpty bool, w http.ResponseWriter, status int, payload 
 		response, err = json.Marshal(payload)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			if err != nil {
+				log.Println(err.Error())
+			}
 			return
 		}
 	}
@@ -50,7 +53,10 @@ func RespondJSON(shouldBeEmpty bool, w http.ResponseWriter, status int, payload 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	log.Println(string(response))
-	w.Write([]byte(response))
+	_, err = w.Write([]byte(response))
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
 
 func RespondError(w http.ResponseWriter, code int, message string) {

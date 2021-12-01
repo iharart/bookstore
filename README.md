@@ -45,3 +45,7 @@ it will set up necessary dependencies and will try to run the project
 4. To run test 
 
 `make test_run`
+
+4. To run lint 
+
+`make lint`

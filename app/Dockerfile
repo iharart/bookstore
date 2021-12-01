@@ -24,19 +24,15 @@ RUN go get -u gorm.io/gorm
 RUN go get -u github.com/go-sql-driver/mysql
 RUN go get gorm.io/driver/mysql
 RUN go get -u github.com/gorilla/mux
-#RUN go get -u github.com/iharart/bookstore
+RUN go get -u github.com/iharart/bookstore
 RUN go get -u github.com/sirupsen/logrus
 RUN go get -u github.com/stretchr/testify/assert
 RUN go get -u github.com/stretchr/testify/suite
 RUN go get -u github.com/ory/dockertest/v3
+RUN go get -u github.com/golangci/golangci-lint/
 RUN apk update && apk add bash
 
 RUN go build -o github.com/iharart/bookstore/app/cmd
-
-#RUN go get github.com/githubnemo/CompileDaemon
-
-#ENTRYPOINT CompileDaemon --build "go build main.go" --comand=./main
-#COPY ../.env ../.
 
 EXPOSE 8082
 

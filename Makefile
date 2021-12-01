@@ -20,5 +20,9 @@ test_run:
 	go test -v ./database/...
 	cd ./app/ &\
 	go test -v ./utils/...
+lint:
+	@echo "running lint.."
+	golangci-lint run
+
 
 
