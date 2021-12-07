@@ -6,8 +6,6 @@ FROM golang:1.16-buster AS build
 
 WORKDIR ./src/bookstore
 COPY . .
-RUN ls
-RUN pwd
 
 COPY go.mod .
 COPY go.sum .
@@ -16,9 +14,6 @@ RUN go mod download
 
 COPY ./app/ ./
 COPY ./cmd/ ./
-
-RUN ls
-RUN pwd
 
 RUN go mod download
 
