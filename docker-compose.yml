@@ -8,10 +8,8 @@ services:
     image: mysql:5.7
     container_name: db
     hostname: db
-    build:
-      context: ./scripts
     volumes:
-      - "./scripts/db.sql:/docker-entrypoint-initdb.d/db.sql"
+      - dbdata:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
@@ -35,8 +33,8 @@ services:
     build:
       context: .
       dockerfile: app/Dockerfile
-    volumes:
-      - ./bin:/go"
+    #volumes:
+     # - ./bin:/go"
     env_file: .env
     ports:
       - "8082:8082"
@@ -44,6 +42,7 @@ services:
       - bookstorenet
     depends_on:
        - db
-    command:  ["./wait-for-it.sh", "db:3306", "--", "go", "run", "main.go"]
     tty: true
+volumes:
+  dbdata:
 

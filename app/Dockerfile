@@ -1,4 +1,8 @@
-FROM golang:1.16-alpine as build-env
+##
+## Build
+##
+FROM golang:1.16-buster AS build
+#FROM golang:1.16-alpine AS build
 
 WORKDIR ./src/bookstore
 COPY . .
@@ -30,11 +34,16 @@ RUN go get -u github.com/stretchr/testify/assert
 RUN go get -u github.com/stretchr/testify/suite
 RUN go get -u github.com/ory/dockertest/v3
 RUN go get -u github.com/golangci/golangci-lint/
-RUN apk update && apk add bash
 
-RUN go build -o github.com/iharart/bookstore/app/cmd
+RUN go build -o /bookstore
 
+##
+## Deploy
+##
+
+FROM gcr.io/distroless/base-debian10
+WORKDIR /
+COPY --from=build /bookstore /bookstore
 EXPOSE 8082
 
-RUN ls
-CMD ["./bookstore"]
+CMD ["/bookstore"]

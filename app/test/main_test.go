@@ -184,8 +184,8 @@ func (s *TestSuiteEnv) TestCreateBookOK() {
 func setCreateBookRouter(s *TestSuiteEnv, body *bytes.Buffer) (*http.Request, *httptest.ResponseRecorder, error) {
 	s.provider.Router = mux.NewRouter()
 
-	s.provider.Post("/book", s.api.CreateBook)
-	req, err := http.NewRequest(http.MethodPost, "/book", body)
+	s.provider.Post("/books", s.api.CreateBook)
+	req, err := http.NewRequest(http.MethodPost, "/books", body)
 	if err != nil {
 		return req, httptest.NewRecorder(), err
 	}
@@ -248,9 +248,9 @@ func (s *TestSuiteEnv) TestGetBookByIdOK() {
 
 func setGetBookRouter(s *TestSuiteEnv, bookId string) (*http.Request, *httptest.ResponseRecorder) {
 	s.provider.Router = mux.NewRouter()
-	s.provider.Get("/book/{id}", s.api.GetBookById)
+	s.provider.Get("/books/{id}", s.api.GetBookById)
 
-	url := "/book/" + bookId
+	url := "/books/" + bookId
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		panic(err)
@@ -405,9 +405,9 @@ func (s *TestSuiteEnv) TestDeleteBookNotFound() {
 
 func setDeleteBookRouter(s *TestSuiteEnv, bookId string) (*http.Request, *httptest.ResponseRecorder) {
 	s.provider.Router = mux.NewRouter()
-	s.provider.Delete("/book/{id}", s.api.DeleteBook)
+	s.provider.Delete("/books/{id}", s.api.DeleteBook)
 
-	url := "/book/" + bookId
+	url := "/books/" + bookId
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		panic(err)
