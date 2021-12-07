@@ -16,7 +16,7 @@ func GetBookByID(id uint, db *gorm.DB) (model.Book, bool, error) {
 	if err := DbCheck(db); err != nil {
 		return book, false, err
 	}
-	err := db.First(&book, model.Book{ID: id}).Error
+	err := db.Preload(model.GENRE).First(&book, model.Book{ID: id}).Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return book, false, err
@@ -57,7 +57,7 @@ func UpdateBook(db *gorm.DB, book *model.Book) error {
 	if err := DbCheck(db); err != nil {
 		return err
 	}
-	if err := db.Save(&book).Error; err != nil {
+	if err := db.Preload(model.GENRE).Save(&book).Error; err != nil {
 		return err
 	}
 	return nil

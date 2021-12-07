@@ -34,6 +34,7 @@ var SampleBook = model.Book{
 	GenreID: 1,
 	Price:   10.44,
 	Amount:  5,
+	Genre: SampleGenreAdventure,
 }
 
 var SampleBookNegativePrice = model.Book{
@@ -50,6 +51,7 @@ var SampleGetBookById = model.Book{
 	GenreID: 1,
 	Price:   100,
 	Amount:  5,
+	Genre: SampleGenreAdventure,
 }
 
 var SampleUpdateBookOk = model.Book{
@@ -58,4 +60,10 @@ var SampleUpdateBookOk = model.Book{
 	GenreID: 1,
 	Price:   19.44,
 	Amount:  20,
+	Genre: SampleGenreAdventure,
+}
+
+var SampleGenreAdventure = model.Genre {
+	ID:   1,
+	Name: "Adventure",
 }

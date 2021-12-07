@@ -10,7 +10,7 @@ import (
 func StringToUint(val string) uint {
 	resUint32, err := strconv.ParseUint(val, 10, 32)
 	if err != nil {
-		panic(err)
+		log.Println(err.Error())
 	}
 	return uint(resUint32)
 }
@@ -18,7 +18,7 @@ func StringToUint(val string) uint {
 func StringToInt(val string) int {
 	res, err := strconv.Atoi(val)
 	if err != nil {
-		panic(err)
+		log.Println(err.Error())
 	}
 	return res
 }
@@ -29,7 +29,7 @@ func UintToString(val uint) string {
 
 func ErrorCheck(err error) {
 	if err != nil {
-		panic(err.Error())
+		log.Println(err.Error())
 	}
 }
 

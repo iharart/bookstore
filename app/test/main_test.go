@@ -168,17 +168,15 @@ func (s *TestSuiteEnv) TestCreateBookOK() {
 	a.Equal(http.MethodPost, req.Method, "HTTP request method error")
 	a.Equal(http.StatusOK, w.Code, "HTTP request status code error")
 
-	body, err := ioutil.ReadAll(w.Body)
+	expected := book
+
+	actual, exists, err := database.GetBookByID(expected.ID, s.api.DB)
 	ErrorCheck(a, err)
 
-	actual := model.Book{}
-	if err := json.Unmarshal(body, &actual.ID); err != nil {
-		a.Error(err)
+	if !exists {
+		a.Fail("Record not found")
 	}
-
-	expected := book
-	a.Equal(expected.ID, actual.ID)
-	s.TestGetBooks()
+	a.Equal(expected, actual)
 }
 
 func setCreateBookRouter(s *TestSuiteEnv, body *bytes.Buffer) (*http.Request, *httptest.ResponseRecorder, error) {
@@ -321,6 +319,7 @@ func (s *TestSuiteEnv) TestUpdateBookOK() {
 	}
 
 	expected := book
+
 	a.Equal(expected, actual)
 	s.ClearTable(&model.Book{})
 }
