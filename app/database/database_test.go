@@ -1,11 +1,12 @@
 package database_test
 
 import (
+	"testing"
+
 	"github.com/iharart/bookstore/app/database"
 	"github.com/iharart/bookstore/app/model"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
-	"testing"
 )
 
 var DB *gorm.DB
@@ -21,7 +22,8 @@ func TestDeleteBook(t *testing.T) {
 }
 
 func TestGetGetAllBooks(t *testing.T) {
-	_, err := database.GetAllBooks(DB)
+	urlParams := make(map[string]string)
+	_, err := database.GetAllBooks(urlParams, DB)
 	require.Error(t, err)
 }
 

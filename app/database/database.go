@@ -28,16 +28,12 @@ func GetBookByID(id uint, db *gorm.DB) (model.Book, bool, error) {
 	return book, true, nil
 }
 
-func GetAllBooks(db *gorm.DB) ([]model.Book, error) {
-	books := []model.Book{}
+func GetAllBooks(urlParams map[string]string, db *gorm.DB) ([]model.Book, error) {
 
 	if err := DbCheck(db); err != nil {
 		return nil, err
 	}
-	if err := db.Debug().Preload(model.GENRE).Order("name").Find(&books).Error; err != nil {
-		return books, err
-	}
-	return books, nil
+	return FilterBooks(urlParams, db)
 }
 
 func DeleteBook(id uint, db *gorm.DB) error {

@@ -39,7 +39,14 @@ func (a *APIEnv) GetBookById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *APIEnv) GetAllBooks(w http.ResponseWriter, r *http.Request) {
-	books, err := database.GetAllBooks(a.DB)
+
+	urlParams := make(map[string]string)
+
+	v := r.URL.Query()
+	urlParams["name"] = v.Get("name")
+	urlParams["genreId"] = v.Get("genreId")
+
+	books, err := database.GetAllBooks(urlParams, a.DB)
 	if err != nil {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)

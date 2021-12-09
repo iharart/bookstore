@@ -9,6 +9,7 @@ services:
     container_name: db
     hostname: db
     volumes:
+      #- "./scripts/db.sql:/docker-entrypoint-initdb.d/db.sql"
       - dbdata:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"

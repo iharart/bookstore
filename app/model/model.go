@@ -10,6 +10,6 @@ type Book struct {
 }
 
 type Genre struct {
-	ID   int    `json:"id" gorm:"gorm:primaryKey"`
+	ID   uint   `json:"id" gorm:"gorm:primaryKey"`
 	Name string `json:"name" gorm:"unique;type:varchar(100);not null"`
 }
