@@ -10,11 +10,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/iharart/bookstore/app/database"
-	_ "github.com/iharart/bookstore/app/database"
 	"github.com/iharart/bookstore/app/handler"
 	"github.com/iharart/bookstore/app/model"
 	"github.com/iharart/bookstore/app/utils"
@@ -43,6 +41,8 @@ func (s *TestSuiteEnv) SetupSuite() {
 func (s *TestSuiteEnv) TearDownTest() {
 	s.ClearTable(&model.Book{})
 	s.ClearTable(&model.Genre{})
+	s.api.DB.Exec("ALTER TABLE Book AUTO_INCREMENT =1;")
+	s.api.DB.Exec("ALTER TABLE Genre AUTO_INCREMENT =1;")
 }
 
 func (s *TestSuiteEnv) TearDownSuite() {
@@ -159,8 +159,9 @@ func (s *TestSuiteEnv) TestGetBooksFilterName() {
 		a.Error(err)
 	}
 	actual := actualArray[0]
-	expected := SampleBook
-	a.Equal(expected, actual)
+	expected := SampleBookExpected
+
+	CheckFieldEqual(a, expected, actual)
 }
 
 func (s *TestSuiteEnv) TestGetBooksFilterGenreId() {
@@ -202,8 +203,9 @@ func (s *TestSuiteEnv) TestGetBooksFilterNameGenreId() {
 		a.Error(err)
 	}
 	actual := actualArray[0]
-	expected := SampleBook
-	a.Equal(expected, actual)
+	expected := SampleBookExpected
+
+	CheckFieldEqual(a, expected, actual)
 }
 
 func setGetBooksRouter(url string, s *TestSuiteEnv) (*http.Request, *httptest.ResponseRecorder) {
@@ -236,14 +238,15 @@ func (s *TestSuiteEnv) TestCreateBookOK() {
 
 	methodAndStatusCheck(req, w, a, http.MethodPost, http.StatusOK)
 
-	expected := book
+	expected := SampleBookExpected
 
-	actual, exists, err := database.GetBookByID(expected.ID, s.api.DB)
+	actual, exists, err := database.GetBookByID(SampleBookExpected.ID, s.api.DB)
 	ErrorCheck(a, err)
 
 	if !exists {
 		a.Fail("Record not found")
 	}
+
 	a.Equal(expected, actual)
 }
 
@@ -296,7 +299,7 @@ func (s *TestSuiteEnv) TestGetBookByIdOK() {
 	a := s.Assert()
 	ErrorCheck(a, err)
 
-	bookId := utils.UintToString(SampleGetBookById.ID)
+	bookId := utils.UintToString(book.ID)
 	req, w := setGetBookRouter(s, bookId)
 
 	methodAndStatusCheck(req, w, a, http.MethodGet, http.StatusOK)
@@ -374,7 +377,7 @@ func (s *TestSuiteEnv) TestUpdateBookOK() {
 
 	reqBody, err := json.Marshal(book)
 	ErrorCheck(a, err)
-	bookId := utils.UintToString(SampleUpdateBookOk.ID)
+	bookId := utils.UintToString(SampleBook.ID)
 	req, w, err := setUpdateBookRouter(s, bookId, bytes.NewBuffer(reqBody))
 	ErrorCheck(a, err)
 
@@ -389,9 +392,7 @@ func (s *TestSuiteEnv) TestUpdateBookOK() {
 	}
 
 	expected := book
-
-	a.Equal(expected, actual)
-	s.ClearTable(&model.Book{})
+	CheckFieldEqual(a, expected, actual)
 }
 
 func setUpdateBookRouter(s *TestSuiteEnv, bookId string, body *bytes.Buffer) (*http.Request, *httptest.ResponseRecorder, error) {
@@ -450,12 +451,12 @@ func (s *TestSuiteEnv) TestDeleteBookOk() {
 	a := s.Assert()
 	ErrorCheck(a, err)
 
-	bookId := utils.UintToString(SampleGetBookById.ID)
+	bookId := utils.UintToString(book.ID)
 	req, w := setDeleteBookRouter(s, bookId)
 
 	methodAndStatusCheck(req, w, a, http.MethodDelete, http.StatusOK)
 
-	_, exists, err := database.GetBookByID(SampleGetBookById.ID, s.api.DB)
+	_, exists, err := database.GetBookByID(book.ID, s.api.DB)
 	ErrorCheck(a, err)
 
 	a.Equal(!exists, true)
@@ -521,4 +522,12 @@ func prepareAllBooks(s *TestSuiteEnv, a *assert.Assertions) {
 	books := SampleGetAllBooks
 	err := insertTestBooks(s, books)
 	ErrorCheck(a, err)
+}
+
+func CheckFieldEqual(a *assert.Assertions, expected model.Book, actual model.Book) {
+	a.Equal(expected.Name, actual.Name)
+	a.Equal(expected.Price, actual.Price)
+	a.Equal(expected.Amount, actual.Amount)
+	a.Equal(expected.GenreID, actual.GenreID)
+	a.Equal(expected.Genre, actual.Genre)
 }

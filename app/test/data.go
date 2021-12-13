@@ -4,60 +4,54 @@ import "github.com/iharart/bookstore/app/model"
 
 var SampleGenresFail = []model.Genre{
 	{
-		ID:   4,
 		Name: "Horror",
 	},
 	{
-		ID:   5,
 		Name: "Horror",
 	},
 }
 
 var SampleGenresOk = []model.Genre{
 	{
-		ID:   1,
 		Name: "Adventure",
 	},
 	{
-		ID:   2,
 		Name: "Classics",
 	},
 	{
-		ID:   3,
 		Name: "Fantasy",
 	},
 }
 
 var SampleBooksAmountMore0 = []model.Book{
 	{
-		ID:      4,
+		ID: 2,
 		Name:    "Dracula",
 		GenreID: 2,
 		Price:   40.44,
 		Amount:  30,
-		Genre:   SampleGenreClassics,
+		Genre:   SampleGenreClassicsExpected,
 	},
 	{
-		ID:      6,
+		ID: 4,
 		Name:    "Moby Dick",
 		GenreID: 2,
 		Price:   20.44,
 		Amount:  10,
-		Genre:   SampleGenreClassics,
+		Genre:   SampleGenreClassicsExpected,
 	},
 	{
-		ID:      5,
+		ID: 3,
 		Name:    "The Three Musketeers",
 		GenreID: 1,
 		Price:   10.44,
 		Amount:  5,
-		Genre:   SampleGenreAdventure,
+		Genre:   SampleGenreAdventureExpected,
 	},
 }
 
 var SampleGetAllBooks = []model.Book{
 	{
-		ID:      3,
 		Name:    "Game of thrones",
 		GenreID: 3,
 		Price:   30.44,
@@ -65,7 +59,6 @@ var SampleGetAllBooks = []model.Book{
 		Genre:   SampleGenreFantasy,
 	},
 	{
-		ID:      4,
 		Name:    "Dracula",
 		GenreID: 2,
 		Price:   40.44,
@@ -73,7 +66,6 @@ var SampleGetAllBooks = []model.Book{
 		Genre:   SampleGenreClassics,
 	},
 	{
-		ID:      5,
 		Name:    "The Three Musketeers",
 		GenreID: 1,
 		Price:   10.44,
@@ -81,7 +73,6 @@ var SampleGetAllBooks = []model.Book{
 		Genre:   SampleGenreAdventure,
 	},
 	{
-		ID:      6,
 		Name:    "Moby Dick",
 		GenreID: 2,
 		Price:   20.44,
@@ -92,34 +83,40 @@ var SampleGetAllBooks = []model.Book{
 
 var SampleBooksGenreIdSame = []model.Book{
 	{
-		ID:      4,
+		ID : 2,
 		Name:    "Dracula",
 		GenreID: 2,
 		Price:   40.44,
 		Amount:  30,
-		Genre:   SampleGenreClassics,
+		Genre:   SampleGenreClassicsExpected,
 	},
 	{
-		ID:      6,
+		ID : 4,
 		Name:    "Moby Dick",
 		GenreID: 2,
 		Price:   20.44,
 		Amount:  10,
-		Genre:   SampleGenreClassics,
+		Genre:   SampleGenreClassicsExpected,
 	},
 }
 
 var SampleBook = model.Book{
-	ID:      5,
 	Name:    "The Three Musketeers",
 	GenreID: 1,
 	Price:   10.44,
 	Amount:  5,
-	Genre:   SampleGenreAdventure,
+}
+
+var SampleBookExpected = model.Book{
+	ID: 1,
+	Name:    "The Three Musketeers",
+	GenreID: 1,
+	Price:   10.44,
+	Amount:  5,
+	Genre:   SampleGenreAdventureExpected,
 }
 
 var SampleBookNegativePrice = model.Book{
-	ID:      5,
 	Name:    "The Three Musketeers",
 	GenreID: 1,
 	Price:   -100.44,
@@ -127,34 +124,44 @@ var SampleBookNegativePrice = model.Book{
 }
 
 var SampleGetBookById = model.Book{
-	ID:      6,
 	Name:    "The Great Gatsby",
 	GenreID: 1,
 	Price:   100,
 	Amount:  5,
-	Genre:   SampleGenreAdventure,
+	Genre:   SampleGenreAdventureExpected,
 }
 
 var SampleUpdateBookOk = model.Book{
-	ID:      5,
 	Name:    "The Three Musketeers",
 	GenreID: 1,
 	Price:   19.44,
 	Amount:  20,
-	Genre:   SampleGenreAdventure,
+	Genre:   SampleGenreAdventureExpected,
 }
 
 var SampleGenreAdventure = model.Genre{
-	ID:   1,
 	Name: "Adventure",
 }
 
 var SampleGenreClassics = model.Genre{
-	ID:   2,
 	Name: "Classics",
 }
 
 var SampleGenreFantasy = model.Genre{
-	ID:   1,
+	Name: "Fantasy",
+}
+
+var SampleGenreAdventureExpected = model.Genre{
+	ID : 1,
+	Name: "Adventure",
+}
+
+var SampleGenreClassicsExpected = model.Genre{
+	ID : 2,
+	Name: "Classics",
+}
+
+var SampleGenreFantasyExpected = model.Genre{
+	ID : 3,
 	Name: "Fantasy",
 }

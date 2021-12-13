@@ -29,7 +29,7 @@ func TestGetGetAllBooks(t *testing.T) {
 
 func TestUpdateBook(t *testing.T) {
 	book := model.Book{}
-	err := database.UpdateBook(DB, &book)
+	err := database.UpdateBook(book.ID, DB, &book)
 	require.Error(t, err)
 }
 

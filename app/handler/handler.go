@@ -79,7 +79,7 @@ func (a *APIEnv) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := database.UpdateBook(a.DB, &updatedBook); err != nil {
+	if err := database.UpdateBook(id, a.DB, &updatedBook); err != nil {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusInternalServerError, InternalServerError)
 		return
@@ -119,7 +119,11 @@ func (a *APIEnv) CreateBook(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		utils.RespondError(w, http.StatusBadRequest, BadRequest)
 	}
-	if err := a.DB.Create(&book).Error; err != nil {
+	if book.Price <= 0 {
+		utils.RespondError(w, http.StatusBadRequest, BadRequest)
+		return
+	}
+	if err := a.DB.Preload(model.GENRE).Create(&book).Error; err != nil {
 		utils.RespondError(w, http.StatusBadRequest, BadRequest)
 		return
 	}

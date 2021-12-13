@@ -49,11 +49,11 @@ func DeleteBook(id uint, db *gorm.DB) error {
 	return nil
 }
 
-func UpdateBook(db *gorm.DB, book *model.Book) error {
+func UpdateBook(id uint, db *gorm.DB, book *model.Book) error {
 	if err := DbCheck(db); err != nil {
 		return err
 	}
-	if err := db.Preload(model.GENRE).Save(&book).Error; err != nil {
+	if err := db.Preload(model.GENRE).Where("id = ?", id).Save(&book).Error; err != nil {
 		return err
 	}
 	return nil
